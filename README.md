@@ -41,7 +41,7 @@ Use the following maven dependency:
 ### Using MaxMind bundle
 
 #### Configuration
-```
+```yaml
 maxmind:
   databaseFilePath: /path/to/maxmind/database/file.mmdb
   remoteIpHeader: "CLIENT-IP" #default is X-FORWARDED-FOR (when used behind a loadbalancer)
@@ -53,7 +53,7 @@ maxmind:
 ```
 
 #### Bootstrap
-```
+```java
     @Override
     public void initialize(final Bootstrap...) {
         bootstrap.addBundle(new MaxMindBundle() {
@@ -85,7 +85,7 @@ maxmind:
 Use MaxMindInfo which is much more convinient if you want easier access to all the stamped headers in a simple object model
 * Example
 
-``` 
+```java 
 @Produces({ MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_JSON })
 @Path("/")
