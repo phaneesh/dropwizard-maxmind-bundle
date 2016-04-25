@@ -60,7 +60,6 @@ public class MaxMindInfoProvider extends AbstractValueFactoryProvider {
             final HttpServletRequest request = context.getResource(HttpServletRequest.class);
             final String anonymousIp = request.getHeader(MaxMindHeaders.X_ANONYMOUS_IP);
             final String anonymousVpn = request.getHeader(MaxMindHeaders.X_ANONYMOUS_VPN);
-            final String legalProxy = request.getHeader(MaxMindHeaders.X_PROXY_LEGAL);
             final String tor = request.getHeader(MaxMindHeaders.X_TOR);
             final String city = request.getHeader(MaxMindHeaders.X_CITY);
             final String state = request.getHeader(MaxMindHeaders.X_STATE);
@@ -76,7 +75,6 @@ public class MaxMindInfoProvider extends AbstractValueFactoryProvider {
                     .anonymousIp(Strings.isNullOrEmpty(anonymousIp) ? false : Boolean.valueOf(anonymousIp))
                     .anonymousVpn(Strings.isNullOrEmpty(anonymousVpn) ? false : Boolean.valueOf(anonymousVpn))
                     .tor(Strings.isNullOrEmpty(tor) ? false : Boolean.valueOf(tor))
-                    .legalProxy(Strings.isNullOrEmpty(legalProxy) ? false : Boolean.valueOf(legalProxy))
                     .city(Strings.isNullOrEmpty(city) ? "UNKNOWN" : city)
                     .state(Strings.isNullOrEmpty(state) ? "UNKNOWN" : state)
                     .country(Strings.isNullOrEmpty(country) ? "UNKNOWN" : country)

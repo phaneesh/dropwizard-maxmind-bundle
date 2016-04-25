@@ -37,8 +37,6 @@ public class MaxMindInfo {
 
     private boolean tor;
 
-    private boolean legalProxy;
-
     private String city;
 
     private String state;

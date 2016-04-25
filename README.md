@@ -3,82 +3,6 @@
 This bundle adds MaxMind GeoIP2 support for dropwizard.
 This bundle compiles only on Java 8.
 
-## Note
-Please bump up jackson dependencies from 2.6.3 to 2.7.0 in your dropwizard project to use this bundle.
-
-```xml
-<properties>
-    <jackson.version>2.7.0</jackson.version>
-</properties>    
-```
-
-```xml
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-afterburner</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-jaxb-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk7</artifactId>
-            <version>2.6.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-guava</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-guava</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-joda</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-```
 ## Dependencies
 * Dropwizard 0.9.2
 * [GeoIP2 Java API](https://github.com/maxmind/GeoIP2-java)  
@@ -110,7 +34,7 @@ Use the following maven dependency:
 <dependency>
     <groupId>io.dropwizard.xml</groupId>
     <artifactId>dropwizard-maxmind-bundle</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 
@@ -152,7 +76,6 @@ maxmind:
 * X-MAXMIND-REQUEST-USER-TYPE
 * X-MAXMIND-REQUEST-CONNECTION-TYPE
 * X-MAXMIND-REQUEST-ISP
-* X-MAXMIND-REQUEST-LEGAL-PROXY
 * X-MAXMIND-REQUEST-ANONYMOUS-IP
 * X-MAXMIND-REQUEST-ANONYMOUS-VPN
 * X-MAXMIND-REQUEST-TOR-NODE
