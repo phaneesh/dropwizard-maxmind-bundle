@@ -60,9 +60,15 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
     @Override
     public void filter(final ContainerRequestContext containerRequestContext) throws IOException {
         final String clientIp = containerRequestContext.getHeaders().getFirst(config.getRemoteIpHeader());
+        InetAddress address;
         if(!Strings.isNullOrEmpty(clientIp)) {
-            InetAddress address = InetAddress.getByName(clientIp);
-            if(config.isEnterprise()) {
+            try {
+                address = InetAddress.getByName(clientIp);
+            } catch (Exception e) {
+                log.warn("Cannot resolve address: {} | Error: {}", clientIp, e.getMessage());
+                return;
+            }
+            if(config.isEnterprise() && address != null) {
                 try {
                     final EnterpriseResponse enterpriseResponse = databaseReader.enterprise(address);
                     if(enterpriseResponse.getCountry() != null) {
