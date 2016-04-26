@@ -21,10 +21,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.maxmind.geoip2.DatabaseReader;
-import com.maxmind.geoip2.model.AnonymousIpResponse;
-import com.maxmind.geoip2.model.CityResponse;
-import com.maxmind.geoip2.model.ConnectionTypeResponse;
-import com.maxmind.geoip2.model.CountryResponse;
+import com.maxmind.geoip2.model.*;
 import io.dropwizard.maxmind.geoip2.config.MaxMindConfig;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,6 +43,8 @@ public class MaxMindCache  {
     private LoadingCache<InetAddress, AnonymousIpResponse> anonymousCache;
 
     private LoadingCache<InetAddress, ConnectionTypeResponse> connectionTypeCache;
+
+    private LoadingCache<InetAddress, EnterpriseResponse> enterpriseCache;
 
     public MaxMindCache(MaxMindConfig config, DatabaseReader databaseReader) {
         countryCache = CacheBuilder.newBuilder()
@@ -88,6 +87,25 @@ public class MaxMindCache  {
                         return databaseReader.connectionType(key);
                     }
                 });
+        enterpriseCache = CacheBuilder.newBuilder()
+                .expireAfterAccess(config.getCacheTTL(), TimeUnit.SECONDS)
+                .maximumSize(config.getCacheMaxEntries())
+                .recordStats()
+                .build(new CacheLoader<InetAddress, EnterpriseResponse>() {
+                    @Override
+                    public EnterpriseResponse load(InetAddress key) throws Exception {
+                        return databaseReader.enterprise(key);
+                    }
+                });
+    }
+
+    public EnterpriseResponse enterprise(InetAddress address) throws IOException {
+        try {
+            return enterpriseCache.get(address);
+        } catch (ExecutionException e) {
+            log.error("Error fetching enterprise response from cache: {}", e.getMessage());
+            return null;
+        }
     }
 
     public CountryResponse country(InetAddress address) throws IOException {

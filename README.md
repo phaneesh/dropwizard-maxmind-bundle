@@ -4,7 +4,7 @@ This bundle adds MaxMind GeoIP2 support for dropwizard.
 This bundle compiles only on Java 8.
 
 ## Dependencies
-* Dropwizard 0.9.2
+* Dropwizard 1.0.0-rc2
 * [GeoIP2 Java API](https://github.com/maxmind/GeoIP2-java)  
 
 ## Usage
@@ -32,9 +32,9 @@ Use the following repository:
 Use the following maven dependency:
 ```xml
 <dependency>
-    <groupId>io.dropwizard.xml</groupId>
-    <artifactId>dropwizard-maxmind-bundle</artifactId>
-    <version>0.0.3</version>
+    <groupId>io.dropwizard</groupId>
+    <artifactId>dropwizard-maxmind</artifactId>
+    <version>1.0.0-rc2-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -79,6 +79,7 @@ maxmind:
 * X-MAXMIND-REQUEST-ANONYMOUS-IP
 * X-MAXMIND-REQUEST-ANONYMOUS-VPN
 * X-MAXMIND-REQUEST-TOR-NODE
+* X-MAXMIND-REQUEST-LEGAL-PROXY
 
 #### MaxMindContext in Resource
 Use MaxMindInfo which is much more convinient if you want easier access to all the stamped headers in a simple object model

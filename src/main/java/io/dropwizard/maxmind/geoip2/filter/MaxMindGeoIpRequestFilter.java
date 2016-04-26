@@ -19,10 +19,7 @@ package io.dropwizard.maxmind.geoip2.filter;
 
 import com.google.common.base.Strings;
 import com.maxmind.geoip2.DatabaseReader;
-import com.maxmind.geoip2.model.AnonymousIpResponse;
-import com.maxmind.geoip2.model.CityResponse;
-import com.maxmind.geoip2.model.ConnectionTypeResponse;
-import com.maxmind.geoip2.model.CountryResponse;
+import com.maxmind.geoip2.model.*;
 import com.maxmind.geoip2.record.*;
 import io.dropwizard.maxmind.geoip2.cache.MaxMindCache;
 import io.dropwizard.maxmind.geoip2.config.MaxMindConfig;
@@ -76,35 +73,30 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
                 return;
             }
             if (config.isEnterprise() && address != null) {
-                final CountryResponse countryResponse = maxMindCache.country(address);
-                if (countryResponse != null && countryResponse.getCountry() != null) {
-                    addCountryInfo(countryResponse.getCountry(), containerRequestContext);
+                final EnterpriseResponse enterpriseResponse = maxMindCache.enterprise(address);
+                if(enterpriseResponse == null) return;
+                if (enterpriseResponse.getCountry() != null) {
+                    addCountryInfo(enterpriseResponse.getCountry(), containerRequestContext);
                 }
-                final CityResponse cityResponse = maxMindCache.city(address);
-                if (cityResponse != null) {
-                    if (cityResponse.getMostSpecificSubdivision() != null) {
-                        addStateInfo(cityResponse.getMostSpecificSubdivision(), containerRequestContext);
-                    }
-                    if (cityResponse.getCity() != null) {
-                        addCityInfo(cityResponse.getCity(), containerRequestContext);
-                    }
-                    if (cityResponse.getPostal() != null) {
-                        addPostalInfo(cityResponse.getPostal(), containerRequestContext);
-                    }
-                    if (cityResponse.getLocation() != null) {
-                        addLocationInfo(cityResponse.getLocation(), containerRequestContext);
-                    }
-                    if (cityResponse.getTraits() != null) {
-                        addTraitsInfo(cityResponse.getTraits(), containerRequestContext);
-                    }
+                if (enterpriseResponse.getMostSpecificSubdivision() != null) {
+                    addStateInfo(enterpriseResponse.getMostSpecificSubdivision(), containerRequestContext);
                 }
+                if (enterpriseResponse.getCity() != null) {
+                    addCityInfo(enterpriseResponse.getCity(), containerRequestContext);
+                }
+                if (enterpriseResponse.getPostal() != null) {
+                    addPostalInfo(enterpriseResponse.getPostal(), containerRequestContext);
+                }
+                if (enterpriseResponse.getLocation() != null) {
+                    addLocationInfo(enterpriseResponse.getLocation(), containerRequestContext);
+                }
+                if (enterpriseResponse.getTraits() != null) {
+                    addTraitsInfo(enterpriseResponse.getTraits(), containerRequestContext);
+                }
+
                 AnonymousIpResponse anonymousIpResponse = maxMindCache.anonymousIp(address);
                 if (anonymousIpResponse != null) {
                     anonymousInfo(anonymousIpResponse, containerRequestContext);
-                }
-                ConnectionTypeResponse connectionTypeResponse = maxMindCache.connectionType(address);
-                if(connectionTypeResponse != null) {
-                    addConnectionTypeInfo(connectionTypeResponse, containerRequestContext);
                 }
             } else {
                 switch (config.getType()) {
@@ -171,15 +163,14 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_LOCATION_ACCURACY, String.valueOf(location.getAccuracyRadius()));
     }
 
-    private void addConnectionTypeInfo(ConnectionTypeResponse response, final ContainerRequestContext containerRequestContext) {
-        containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CONNECTION_TYPE, response.getConnectionType().name());
-    }
-
     private void addTraitsInfo(Traits traits, final ContainerRequestContext containerRequestContext) {
         if (Strings.isNullOrEmpty(traits.getUserType()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_USER_TYPE, traits.getUserType());
         if (Strings.isNullOrEmpty(traits.getIsp()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_ISP, traits.getIsp());
+        if (traits.getConnectionType() != null)
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CONNECTION_TYPE, traits.getConnectionType().name());
+        containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_PROXY_LEGAL, String.valueOf(traits.isLegitimateProxy()));
     }
 
     private void anonymousInfo(AnonymousIpResponse anonymousIpResponse, final ContainerRequestContext containerRequestContext) {
