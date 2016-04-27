@@ -72,7 +72,11 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
                 log.warn("Cannot resolve address: {} | Error: {}", clientIp, e.getMessage());
                 return;
             }
-            if (config.isEnterprise() && address != null) {
+            //Short circuit if there is no ip address
+            if(address == null) {
+                return;
+            }
+            if (config.isEnterprise()) {
                 final EnterpriseResponse enterpriseResponse = maxMindCache.enterprise(address);
                 if(enterpriseResponse == null) return;
                 if (enterpriseResponse.getCountry() != null) {
