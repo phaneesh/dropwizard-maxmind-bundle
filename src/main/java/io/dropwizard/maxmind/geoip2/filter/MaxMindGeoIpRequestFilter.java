@@ -63,7 +63,9 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
         if(Strings.isNullOrEmpty(clientAddress)) {
             return;
         }
-        final String clientIp = clientAddress.split(":")[0];
+        //Multiple Client ip addresses are being sent in case of multiple people stamping the request
+        final String[] addresses = clientAddress.split(",");
+        final String clientIp = addresses[0].split(":")[0];
         InetAddress address;
         if (!Strings.isNullOrEmpty(clientIp)) {
             try {
