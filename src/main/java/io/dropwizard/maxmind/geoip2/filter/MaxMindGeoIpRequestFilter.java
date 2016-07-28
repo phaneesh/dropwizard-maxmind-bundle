@@ -17,11 +17,17 @@
 
 package io.dropwizard.maxmind.geoip2.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.maxmind.db.NodeCache;
 import com.maxmind.geoip2.DatabaseReader;
-import com.maxmind.geoip2.model.*;
+import com.maxmind.geoip2.model.AnonymousIpResponse;
+import com.maxmind.geoip2.model.CityResponse;
+import com.maxmind.geoip2.model.CountryResponse;
+import com.maxmind.geoip2.model.EnterpriseResponse;
 import com.maxmind.geoip2.record.*;
-import io.dropwizard.maxmind.geoip2.cache.MaxMindCache;
 import io.dropwizard.maxmind.geoip2.config.MaxMindConfig;
 import io.dropwizard.maxmind.geoip2.core.MaxMindHeaders;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +40,8 @@ import javax.ws.rs.ext.Provider;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author phaneesh
@@ -45,13 +53,28 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
 
     private final MaxMindConfig config;
 
-    private MaxMindCache maxMindCache;
+    private DatabaseReader databaseReader;
 
     public MaxMindGeoIpRequestFilter(MaxMindConfig config) {
         this.config = config;
         try {
-            DatabaseReader databaseReader = new DatabaseReader.Builder(new File(config.getDatabaseFilePath())).build();
-            this.maxMindCache = new MaxMindCache(config, databaseReader);
+            this.databaseReader = new DatabaseReader.Builder(new File(config.getDatabaseFilePath()))
+                    .withCache(new NodeCache() {
+                        private Cache<Integer, JsonNode> cache = CacheBuilder.newBuilder()
+                                .expireAfterAccess(config.getCacheTTL(), TimeUnit.SECONDS)
+                                .maximumSize(config.getCacheMaxEntries())
+                                .recordStats()
+                                .build();
+                        @Override
+                        public JsonNode get(int i, Loader loader) throws IOException {
+                            try {
+                                return cache.get(i, () -> loader.load(i));
+                            } catch (ExecutionException e) {
+                                return null;
+                            }
+                        }
+                    })
+                    .build();
         } catch (IOException e) {
             log.error("Error initializing GeoIP database", e);
         }
@@ -75,66 +98,70 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
                 return;
             }
             //Short circuit if there is no ip address
-            if(address == null) {
+            if (address == null) {
+                log.warn("Cannot resolve address: {}", clientIp);
                 return;
             }
-            if (config.isEnterprise()) {
-                final EnterpriseResponse enterpriseResponse = maxMindCache.enterprise(address);
-                if(enterpriseResponse == null) return;
-                if (enterpriseResponse.getCountry() != null) {
-                    addCountryInfo(enterpriseResponse.getCountry(), containerRequestContext);
-                }
-                if (enterpriseResponse.getMostSpecificSubdivision() != null) {
-                    addStateInfo(enterpriseResponse.getMostSpecificSubdivision(), containerRequestContext);
-                }
-                if (enterpriseResponse.getCity() != null) {
-                    addCityInfo(enterpriseResponse.getCity(), containerRequestContext);
-                }
-                if (enterpriseResponse.getPostal() != null) {
-                    addPostalInfo(enterpriseResponse.getPostal(), containerRequestContext);
-                }
-                if (enterpriseResponse.getLocation() != null) {
-                    addLocationInfo(enterpriseResponse.getLocation(), containerRequestContext);
-                }
-                if (enterpriseResponse.getTraits() != null) {
-                    addTraitsInfo(enterpriseResponse.getTraits(), containerRequestContext);
-                }
-
-                AnonymousIpResponse anonymousIpResponse = maxMindCache.anonymousIp(address);
-                if (anonymousIpResponse != null) {
-                    anonymousInfo(anonymousIpResponse, containerRequestContext);
-                }
-            } else {
-                switch (config.getType()) {
-                    case "country":
-                        CountryResponse countryResponse = maxMindCache.country(address);
-                        if (countryResponse!= null && countryResponse.getCountry() != null) {
-                            addCountryInfo(countryResponse.getCountry(), containerRequestContext);
-                        }
-                        break;
-                    case "city":
-                        CityResponse cityResponse = maxMindCache.city(address);
-                        if(cityResponse != null) {
-                            if (cityResponse.getMostSpecificSubdivision() != null) {
-                                addStateInfo(cityResponse.getMostSpecificSubdivision(), containerRequestContext);
+            try {
+                if (config.isEnterprise()) {
+                    final EnterpriseResponse enterpriseResponse = databaseReader.enterprise(address);
+                    if (enterpriseResponse == null) return;
+                    if (enterpriseResponse.getCountry() != null) {
+                        addCountryInfo(enterpriseResponse.getCountry(), containerRequestContext);
+                    }
+                    if (enterpriseResponse.getMostSpecificSubdivision() != null) {
+                        addStateInfo(enterpriseResponse.getMostSpecificSubdivision(), containerRequestContext);
+                    }
+                    if (enterpriseResponse.getCity() != null) {
+                        addCityInfo(enterpriseResponse.getCity(), containerRequestContext);
+                    }
+                    if (enterpriseResponse.getPostal() != null) {
+                        addPostalInfo(enterpriseResponse.getPostal(), containerRequestContext);
+                    }
+                    if (enterpriseResponse.getLocation() != null) {
+                        addLocationInfo(enterpriseResponse.getLocation(), containerRequestContext);
+                    }
+                    if (enterpriseResponse.getTraits() != null) {
+                        addTraitsInfo(enterpriseResponse.getTraits(), containerRequestContext);
+                    }
+                    AnonymousIpResponse anonymousIpResponse = databaseReader.anonymousIp(address);
+                    if (anonymousIpResponse != null) {
+                        anonymousInfo(anonymousIpResponse, containerRequestContext);
+                    }
+                } else {
+                    switch (config.getType()) {
+                        case "country":
+                            CountryResponse countryResponse = databaseReader.country(address);
+                            if (countryResponse != null && countryResponse.getCountry() != null) {
+                                addCountryInfo(countryResponse.getCountry(), containerRequestContext);
                             }
-                            if (cityResponse.getCity() != null) {
-                                addCityInfo(cityResponse.getCity(), containerRequestContext);
+                            break;
+                        case "city":
+                            CityResponse cityResponse = databaseReader.city(address);
+                            if (cityResponse != null) {
+                                if (cityResponse.getMostSpecificSubdivision() != null) {
+                                    addStateInfo(cityResponse.getMostSpecificSubdivision(), containerRequestContext);
+                                }
+                                if (cityResponse.getCity() != null) {
+                                    addCityInfo(cityResponse.getCity(), containerRequestContext);
+                                }
+                                if (cityResponse.getPostal() != null) {
+                                    addPostalInfo(cityResponse.getPostal(), containerRequestContext);
+                                }
+                                if (cityResponse.getLocation() != null) {
+                                    addLocationInfo(cityResponse.getLocation(), containerRequestContext);
+                                }
                             }
-                            if (cityResponse.getPostal() != null) {
-                                addPostalInfo(cityResponse.getPostal(), containerRequestContext);
+                            break;
+                        case "anonymous":
+                            AnonymousIpResponse anonymousIpResponse = databaseReader.anonymousIp(address);
+                            if (anonymousIpResponse != null) {
+                                anonymousInfo(anonymousIpResponse, containerRequestContext);
                             }
-                            if (cityResponse.getLocation() != null) {
-                                addLocationInfo(cityResponse.getLocation(), containerRequestContext);
-                            }
-                        }
-                        break;
-                    case "anonymous":
-                        AnonymousIpResponse anonymousIpResponse = maxMindCache.anonymousIp(address);
-                        if (anonymousIpResponse != null) {
-                            anonymousInfo(anonymousIpResponse, containerRequestContext);
-                        }
+                    }
                 }
+            } catch (Exception e) {
+                log.warn("GeoIP Error: {}", e.getMessage());
             }
         }
     }
