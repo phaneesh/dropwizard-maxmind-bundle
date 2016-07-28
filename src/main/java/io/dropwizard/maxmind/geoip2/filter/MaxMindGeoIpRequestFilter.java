@@ -168,22 +168,22 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
 
 
     private void addCountryInfo(Country country, final ContainerRequestContext containerRequestContext) {
-        if (Strings.isNullOrEmpty(country.getName()))
+        if (!Strings.isNullOrEmpty(country.getName()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY, country.getName());
     }
 
     private void addStateInfo(Subdivision subdivision, final ContainerRequestContext containerRequestContext) {
-        if (Strings.isNullOrEmpty(subdivision.getName()))
+        if (!Strings.isNullOrEmpty(subdivision.getName()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE, subdivision.getName());
     }
 
     private void addCityInfo(City city, final ContainerRequestContext containerRequestContext) {
-        if (Strings.isNullOrEmpty(city.getName()))
+        if (!Strings.isNullOrEmpty(city.getName()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CITY, city.getName());
     }
 
     private void addPostalInfo(Postal postal, final ContainerRequestContext containerRequestContext) {
-        if (Strings.isNullOrEmpty(postal.getCode()))
+        if (!Strings.isNullOrEmpty(postal.getCode()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_POSTAL, postal.getCode());
     }
 
@@ -197,9 +197,9 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
     }
 
     private void addTraitsInfo(Traits traits, final ContainerRequestContext containerRequestContext) {
-        if (Strings.isNullOrEmpty(traits.getUserType()))
+        if (!Strings.isNullOrEmpty(traits.getUserType()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_USER_TYPE, traits.getUserType());
-        if (Strings.isNullOrEmpty(traits.getIsp()))
+        if (!Strings.isNullOrEmpty(traits.getIsp()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_ISP, traits.getIsp());
         if (traits.getConnectionType() != null)
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CONNECTION_TYPE, traits.getConnectionType().name());
