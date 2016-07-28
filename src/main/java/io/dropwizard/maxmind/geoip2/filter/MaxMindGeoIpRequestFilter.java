@@ -83,7 +83,7 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(final ContainerRequestContext containerRequestContext) throws IOException {
-        final String clientAddress = StringUtils.join(containerRequestContext.getHeaders().get(config.getRemoteIpHeader()), ",");
+        final String clientAddress = containerRequestContext.getHeaders().getFirst(config.getRemoteIpHeader());
         if(Strings.isNullOrEmpty(clientAddress)) {
             return;
         }
