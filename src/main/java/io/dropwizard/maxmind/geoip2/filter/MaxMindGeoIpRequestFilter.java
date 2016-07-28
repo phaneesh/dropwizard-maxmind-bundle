@@ -31,6 +31,7 @@ import com.maxmind.geoip2.record.*;
 import io.dropwizard.maxmind.geoip2.config.MaxMindConfig;
 import io.dropwizard.maxmind.geoip2.core.MaxMindHeaders;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -82,10 +83,11 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(final ContainerRequestContext containerRequestContext) throws IOException {
-        final String clientAddress = containerRequestContext.getHeaders().getFirst(config.getRemoteIpHeader());
+        final String clientAddress = StringUtils.join(containerRequestContext.getHeaders().get(config.getRemoteIpHeader()), ",");
         if(Strings.isNullOrEmpty(clientAddress)) {
             return;
         }
+        log.info("Header: {} | Value: ", config.getRemoteIpHeader(), clientAddress );
         //Multiple Client ip addresses are being sent in case of multiple people stamping the request
         final String[] addresses = clientAddress.split(",");
         final String clientIp = addresses[0].split(":")[0];
