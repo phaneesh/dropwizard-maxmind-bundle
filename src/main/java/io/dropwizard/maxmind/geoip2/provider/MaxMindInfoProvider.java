@@ -63,10 +63,12 @@ public class MaxMindInfoProvider extends AbstractValueFactoryProvider {
             final String tor = request.getHeader(MaxMindHeaders.X_TOR);
             final String city = request.getHeader(MaxMindHeaders.X_CITY);
             final String state = request.getHeader(MaxMindHeaders.X_STATE);
+            final String stateIso = request.getHeader(MaxMindHeaders.X_STATE_ISO);
             final String postal = request.getHeader(MaxMindHeaders.X_POSTAL);
             final String connectionType = request.getHeader(MaxMindHeaders.X_CONNECTION_TYPE);
             final String userType = request.getHeader(MaxMindHeaders.X_USER_TYPE);
             final String country = request.getHeader(MaxMindHeaders.X_COUNTRY);
+            final String countryIso = request.getHeader(MaxMindHeaders.X_COUNTRY_ISO);
             final String isp = request.getHeader(MaxMindHeaders.X_ISP);
             final String latitude = request.getHeader(MaxMindHeaders.X_LATITUDE);
             final String longitude = request.getHeader(MaxMindHeaders.X_LONGITUDE);
@@ -77,7 +79,9 @@ public class MaxMindInfoProvider extends AbstractValueFactoryProvider {
                     .tor(Strings.isNullOrEmpty(tor) ? false : Boolean.valueOf(tor))
                     .city(Strings.isNullOrEmpty(city) ? "UNKNOWN" : city)
                     .state(Strings.isNullOrEmpty(state) ? "UNKNOWN" : state)
+                    .stateIso(Strings.isNullOrEmpty(state) ? "UNKNOWN" : stateIso)
                     .country(Strings.isNullOrEmpty(country) ? "UNKNOWN" : country)
+                    .countryIso(Strings.isNullOrEmpty(country) ? "UNKNOWN" : countryIso)
                     .postal(Strings.isNullOrEmpty(postal) ? "UNKNOWN" : postal)
                     .connectionType(Strings.isNullOrEmpty(connectionType) ? "UNKNOWN" : connectionType)
                     .userType(Strings.isNullOrEmpty(userType) ? "UNKNOWN" : userType)

@@ -41,7 +41,11 @@ public class MaxMindInfo {
 
     private String state;
 
+    private String stateIso;
+
     private String country;
+
+    private String countryIso;
 
     private String postal;
 
