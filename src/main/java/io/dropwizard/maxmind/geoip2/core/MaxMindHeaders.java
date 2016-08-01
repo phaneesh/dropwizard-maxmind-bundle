@@ -23,7 +23,9 @@ package io.dropwizard.maxmind.geoip2.core;
 public interface MaxMindHeaders {
 
     String X_COUNTRY = "X-MAXMIND-REQUEST-COUNTRY";
+    String X_COUNTRY_ISO = "X-MAXMIND-REQUEST-COUNTRY-ISO";
     String X_STATE = "X-MAXMIND-REQUEST-STATE";
+    String X_STATE_ISO = "X-MAXMIND-REQUEST-STATE-ISO";
     String X_CITY = "X-MAXMIND-REQUEST-CITY";
     String X_POSTAL = "X-MAXMIND-REQUEST-POSTAL-CODE";
     String X_LATITUDE = "X-MAXMIND-REQUEST-LATITUDE";

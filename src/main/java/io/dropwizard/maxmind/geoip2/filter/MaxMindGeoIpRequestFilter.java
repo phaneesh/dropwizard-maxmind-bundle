@@ -141,6 +141,9 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
                         case "city":
                             CityResponse cityResponse = databaseReader.city(address);
                             if (cityResponse != null) {
+                                if(cityResponse.getCountry() != null) {
+                                    addCountryInfo(cityResponse.getCountry(), containerRequestContext);
+                                }
                                 if (cityResponse.getMostSpecificSubdivision() != null) {
                                     addStateInfo(cityResponse.getMostSpecificSubdivision(), containerRequestContext);
                                 }
@@ -172,11 +175,15 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
     private void addCountryInfo(Country country, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(country.getName()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY, country.getName());
+        if(!Strings.isNullOrEmpty(country.getIsoCode()))
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY_ISO, country.getIsoCode());
     }
 
     private void addStateInfo(Subdivision subdivision, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(subdivision.getName()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE, subdivision.getName());
+        if(!Strings.isNullOrEmpty(subdivision.getIsoCode()))
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE_ISO, subdivision.getIsoCode());
     }
 
     private void addCityInfo(City city, final ContainerRequestContext containerRequestContext) {
