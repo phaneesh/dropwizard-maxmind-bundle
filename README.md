@@ -84,7 +84,7 @@ maxmind:
 * X-MAXMIND-REQUEST-LEGAL-PROXY
 
 #### MaxMindContext in Resource
-Use MaxMindInfo which is much more convinient if you want easier access to all the stamped headers in a simple object model
+Use MaxMindInfo which is much more convenient if you want easier access to all the stamped headers in a simple object model
 * Example
 
 ```java 
