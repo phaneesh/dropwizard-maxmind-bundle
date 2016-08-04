@@ -31,7 +31,6 @@ import com.maxmind.geoip2.record.*;
 import io.dropwizard.maxmind.geoip2.config.MaxMindConfig;
 import io.dropwizard.maxmind.geoip2.core.MaxMindHeaders;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -66,6 +65,7 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
                                 .maximumSize(config.getCacheMaxEntries())
                                 .recordStats()
                                 .build();
+
                         @Override
                         public JsonNode get(int i, Loader loader) throws IOException {
                             try {
@@ -84,10 +84,11 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
     @Override
     public void filter(final ContainerRequestContext containerRequestContext) throws IOException {
         final String clientAddress = containerRequestContext.getHeaders().getFirst(config.getRemoteIpHeader());
-        if(Strings.isNullOrEmpty(clientAddress)) {
+        if (Strings.isNullOrEmpty(clientAddress)) {
             return;
         }
-        log.info("Header: {} | Value: {}", config.getRemoteIpHeader(), clientAddress );
+        if (log.isDebugEnabled())
+            log.debug("Header: {} | Value: {}", config.getRemoteIpHeader(), clientAddress);
         //Multiple Client ip addresses are being sent in case of multiple people stamping the request
         final String[] addresses = clientAddress.split(",");
         final String clientIp = addresses[0].split(":")[0];
@@ -141,7 +142,7 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
                         case "city":
                             CityResponse cityResponse = databaseReader.city(address);
                             if (cityResponse != null) {
-                                if(cityResponse.getCountry() != null) {
+                                if (cityResponse.getCountry() != null) {
                                     addCountryInfo(cityResponse.getCountry(), containerRequestContext);
                                 }
                                 if (cityResponse.getMostSpecificSubdivision() != null) {
@@ -175,14 +176,14 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
     private void addCountryInfo(Country country, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(country.getName()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY, country.getName());
-        if(!Strings.isNullOrEmpty(country.getIsoCode()))
+        if (!Strings.isNullOrEmpty(country.getIsoCode()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY_ISO, country.getIsoCode());
     }
 
     private void addStateInfo(Subdivision subdivision, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(subdivision.getName()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE, subdivision.getName());
-        if(!Strings.isNullOrEmpty(subdivision.getIsoCode()))
+        if (!Strings.isNullOrEmpty(subdivision.getIsoCode()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE_ISO, subdivision.getIsoCode());
     }
 
