@@ -18,6 +18,7 @@
 package io.dropwizard.maxmind.geoip2.provider;
 
 import com.google.common.base.Strings;
+import io.dropwizard.maxmind.geoip2.Characters;
 import io.dropwizard.maxmind.geoip2.core.MaxMindHeaders;
 import io.dropwizard.maxmind.geoip2.core.MaxMindInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -60,16 +61,16 @@ public class MaxMindInfoProvider extends AbstractValueFactoryProvider {
             final HttpServletRequest request = context.getResource(HttpServletRequest.class);
             final String anonymousIp = request.getHeader(MaxMindHeaders.X_ANONYMOUS_IP);
             final String anonymousVpn = request.getHeader(MaxMindHeaders.X_ANONYMOUS_VPN);
-            final String tor = toAscii(request.getHeader(MaxMindHeaders.X_TOR));
-            final String city = toAscii(request.getHeader(MaxMindHeaders.X_CITY));
-            final String state = toAscii(request.getHeader(MaxMindHeaders.X_STATE));
-            final String stateIso = toAscii(request.getHeader(MaxMindHeaders.X_STATE_ISO));
-            final String postal = toAscii(request.getHeader(MaxMindHeaders.X_POSTAL));
-            final String connectionType = toAscii(request.getHeader(MaxMindHeaders.X_CONNECTION_TYPE));
-            final String userType = toAscii(request.getHeader(MaxMindHeaders.X_USER_TYPE));
-            final String country = toAscii(request.getHeader(MaxMindHeaders.X_COUNTRY));
-            final String countryIso = toAscii(request.getHeader(MaxMindHeaders.X_COUNTRY_ISO));
-            final String isp = toAscii(request.getHeader(MaxMindHeaders.X_ISP));
+            final String tor = Characters.toAscii(request.getHeader(MaxMindHeaders.X_TOR));
+            final String city = Characters.toAscii(request.getHeader(MaxMindHeaders.X_CITY));
+            final String state = Characters.toAscii(request.getHeader(MaxMindHeaders.X_STATE));
+            final String stateIso = Characters.toAscii(request.getHeader(MaxMindHeaders.X_STATE_ISO));
+            final String postal = Characters.toAscii(request.getHeader(MaxMindHeaders.X_POSTAL));
+            final String connectionType = Characters.toAscii(request.getHeader(MaxMindHeaders.X_CONNECTION_TYPE));
+            final String userType = Characters.toAscii(request.getHeader(MaxMindHeaders.X_USER_TYPE));
+            final String country = Characters.toAscii(request.getHeader(MaxMindHeaders.X_COUNTRY));
+            final String countryIso = Characters.toAscii(request.getHeader(MaxMindHeaders.X_COUNTRY_ISO));
+            final String isp = Characters.toAscii(request.getHeader(MaxMindHeaders.X_ISP));
             final String latitude = request.getHeader(MaxMindHeaders.X_LATITUDE);
             final String longitude = request.getHeader(MaxMindHeaders.X_LONGITUDE);
             final String accuracy = request.getHeader(MaxMindHeaders.X_LOCATION_ACCURACY);
@@ -107,13 +108,6 @@ public class MaxMindInfoProvider extends AbstractValueFactoryProvider {
             return null;
         }
         return new MaxMinfInfoParamValueFactory();
-    }
-
-    private static String toAscii(String s) {
-        if (s == null || s.isEmpty()) {
-            return s;
-        }
-        return s.replaceAll("[^\\x20-\\x7e]", "");
     }
 
 }
