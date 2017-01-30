@@ -223,7 +223,10 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
     }
 
     private String toAscii(String input) {
-        return input.replaceAll("[^\\x20-\\x7e]", "");
+        if(!Strings.isNullOrEmpty(input)) {
+            return input.replaceAll("[^\\x20-\\x7e]", "");
+        }
+        return input;
     }
 
 }
