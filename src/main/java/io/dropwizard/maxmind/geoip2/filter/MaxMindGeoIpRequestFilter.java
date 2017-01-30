@@ -28,6 +28,7 @@ import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.model.CountryResponse;
 import com.maxmind.geoip2.model.EnterpriseResponse;
 import com.maxmind.geoip2.record.*;
+import io.dropwizard.maxmind.geoip2.Characters;
 import io.dropwizard.maxmind.geoip2.config.MaxMindConfig;
 import io.dropwizard.maxmind.geoip2.core.MaxMindHeaders;
 import lombok.extern.slf4j.Slf4j;
@@ -175,26 +176,32 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
 
     private void addCountryInfo(Country country, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(country.getName()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY, country.getName());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY,
+                    Characters.toAscii(country.getName()));
         if (!Strings.isNullOrEmpty(country.getIsoCode()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY_ISO, country.getIsoCode());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY_ISO,
+                    Characters.toAscii(country.getIsoCode()));
     }
 
     private void addStateInfo(Subdivision subdivision, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(subdivision.getName()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE, subdivision.getName());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE,
+                    Characters.toAscii(subdivision.getName()));
         if (!Strings.isNullOrEmpty(subdivision.getIsoCode()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE_ISO, subdivision.getIsoCode());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE_ISO,
+                    Characters.toAscii(subdivision.getIsoCode()));
     }
 
     private void addCityInfo(City city, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(city.getName()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CITY, city.getName());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CITY,
+                    Characters.toAscii(city.getName()));
     }
 
     private void addPostalInfo(Postal postal, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(postal.getCode()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_POSTAL, postal.getCode());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_POSTAL,
+                    Characters.toAscii(postal.getCode()));
     }
 
     private void addLocationInfo(Location location, final ContainerRequestContext containerRequestContext) {
@@ -208,11 +215,14 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
 
     private void addTraitsInfo(Traits traits, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(traits.getUserType()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_USER_TYPE, traits.getUserType());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_USER_TYPE,
+                    Characters.toAscii(traits.getUserType()));
         if (!Strings.isNullOrEmpty(traits.getIsp()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_ISP, traits.getIsp());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_ISP,
+                    Characters.toAscii(traits.getIsp()));
         if (traits.getConnectionType() != null)
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CONNECTION_TYPE, traits.getConnectionType().name());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CONNECTION_TYPE,
+                    Characters.toAscii(traits.getConnectionType().name()));
         containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_PROXY_LEGAL, String.valueOf(traits.isLegitimateProxy()));
     }
 
