@@ -60,16 +60,16 @@ public class MaxMindInfoProvider extends AbstractValueFactoryProvider {
             final HttpServletRequest request = context.getResource(HttpServletRequest.class);
             final String anonymousIp = request.getHeader(MaxMindHeaders.X_ANONYMOUS_IP);
             final String anonymousVpn = request.getHeader(MaxMindHeaders.X_ANONYMOUS_VPN);
-            final String tor = request.getHeader(MaxMindHeaders.X_TOR);
-            final String city = request.getHeader(MaxMindHeaders.X_CITY);
-            final String state = request.getHeader(MaxMindHeaders.X_STATE);
-            final String stateIso = request.getHeader(MaxMindHeaders.X_STATE_ISO);
-            final String postal = request.getHeader(MaxMindHeaders.X_POSTAL);
-            final String connectionType = request.getHeader(MaxMindHeaders.X_CONNECTION_TYPE);
-            final String userType = request.getHeader(MaxMindHeaders.X_USER_TYPE);
-            final String country = request.getHeader(MaxMindHeaders.X_COUNTRY);
-            final String countryIso = request.getHeader(MaxMindHeaders.X_COUNTRY_ISO);
-            final String isp = request.getHeader(MaxMindHeaders.X_ISP);
+            final String tor = toAscii(request.getHeader(MaxMindHeaders.X_TOR));
+            final String city = toAscii(request.getHeader(MaxMindHeaders.X_CITY));
+            final String state = toAscii(request.getHeader(MaxMindHeaders.X_STATE));
+            final String stateIso = toAscii(request.getHeader(MaxMindHeaders.X_STATE_ISO));
+            final String postal = toAscii(request.getHeader(MaxMindHeaders.X_POSTAL));
+            final String connectionType = toAscii(request.getHeader(MaxMindHeaders.X_CONNECTION_TYPE));
+            final String userType = toAscii(request.getHeader(MaxMindHeaders.X_USER_TYPE));
+            final String country = toAscii(request.getHeader(MaxMindHeaders.X_COUNTRY));
+            final String countryIso = toAscii(request.getHeader(MaxMindHeaders.X_COUNTRY_ISO));
+            final String isp = toAscii(request.getHeader(MaxMindHeaders.X_ISP));
             final String latitude = request.getHeader(MaxMindHeaders.X_LATITUDE);
             final String longitude = request.getHeader(MaxMindHeaders.X_LONGITUDE);
             final String accuracy = request.getHeader(MaxMindHeaders.X_LOCATION_ACCURACY);
@@ -108,4 +108,12 @@ public class MaxMindInfoProvider extends AbstractValueFactoryProvider {
         }
         return new MaxMinfInfoParamValueFactory();
     }
+
+    private static String toAscii(String s) {
+        if (s == null || s.isEmpty()) {
+            return s;
+        }
+        return s.replaceAll("[^\\x20-\\x7e]", "");
+    }
+
 }
