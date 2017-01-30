@@ -175,21 +175,21 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
 
     private void addCountryInfo(Country country, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(country.getName()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY, country.getName());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY, toAscii(country.getName()));
         if (!Strings.isNullOrEmpty(country.getIsoCode()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_COUNTRY_ISO, country.getIsoCode());
     }
 
     private void addStateInfo(Subdivision subdivision, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(subdivision.getName()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE, subdivision.getName());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE, toAscii(subdivision.getName()));
         if (!Strings.isNullOrEmpty(subdivision.getIsoCode()))
             containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_STATE_ISO, subdivision.getIsoCode());
     }
 
     private void addCityInfo(City city, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(city.getName()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CITY, city.getName());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CITY, toAscii(city.getName()));
     }
 
     private void addPostalInfo(Postal postal, final ContainerRequestContext containerRequestContext) {
@@ -208,11 +208,11 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
 
     private void addTraitsInfo(Traits traits, final ContainerRequestContext containerRequestContext) {
         if (!Strings.isNullOrEmpty(traits.getUserType()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_USER_TYPE, traits.getUserType());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_USER_TYPE, toAscii(traits.getUserType()));
         if (!Strings.isNullOrEmpty(traits.getIsp()))
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_ISP, traits.getIsp());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_ISP, toAscii(traits.getIsp()));
         if (traits.getConnectionType() != null)
-            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CONNECTION_TYPE, traits.getConnectionType().name());
+            containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_CONNECTION_TYPE, toAscii(traits.getConnectionType().name()));
         containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_PROXY_LEGAL, String.valueOf(traits.isLegitimateProxy()));
     }
 
@@ -220,6 +220,10 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
         containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_ANONYMOUS_IP, String.valueOf(anonymousIpResponse.isAnonymous()));
         containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_ANONYMOUS_VPN, String.valueOf(anonymousIpResponse.isAnonymousVpn()));
         containerRequestContext.getHeaders().putSingle(MaxMindHeaders.X_TOR, String.valueOf(anonymousIpResponse.isTorExitNode()));
+    }
+
+    private String toAscii(String input) {
+        return input.replaceAll("[^\\x20-\\x7e]", "");
     }
 
 }
