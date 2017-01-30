@@ -18,7 +18,6 @@
 package io.dropwizard.maxmind.geoip2.provider;
 
 import com.google.common.base.Strings;
-import io.dropwizard.maxmind.geoip2.Characters;
 import io.dropwizard.maxmind.geoip2.core.MaxMindHeaders;
 import io.dropwizard.maxmind.geoip2.core.MaxMindInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -109,5 +108,4 @@ public class MaxMindInfoProvider extends AbstractValueFactoryProvider {
         }
         return new MaxMinfInfoParamValueFactory();
     }
-
 }
