@@ -4,7 +4,7 @@
 
     <groupId>io.dropwizard</groupId>
     <artifactId>dropwizard-maxmind</artifactId>
-    <version>1.0.6</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>dropwizard-maxmind</name>
@@ -44,7 +44,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dropwizard.version>1.0.6</dropwizard.version>
+        <dropwizard.version>1.1.0</dropwizard.version>
         <geoip2.version>2.8.0</geoip2.version>
         <lombok.version>1.16.12</lombok.version>
         <junit.version>4.12</junit.version>
