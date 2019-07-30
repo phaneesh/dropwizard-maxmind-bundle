@@ -4,7 +4,7 @@ This bundle adds MaxMind GeoIP2 support for dropwizard.
 This bundle compiles only on Java 8.
 
 ## Dependencies
-* Dropwizard 1.3.7
+* Dropwizard 1.3.13
 * [GeoIP2 Java API](https://github.com/maxmind/GeoIP2-java)  
 
 ## Usage
