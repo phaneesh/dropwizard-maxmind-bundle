@@ -93,7 +93,7 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
         //Multiple Client ip addresses are being sent in case of multiple people stamping the request
         final String[] addresses = clientAddress.split(",");
         InetAddressValidator inetAddressValidator = InetAddressValidator.getInstance();
-        if(inetAddressValidator.isValid(addresses[0])) {
+        if(!inetAddressValidator.isValid(addresses[0])) {
             log.warn("Invalid IP Address: {}", addresses[0]);
             return;
         }
