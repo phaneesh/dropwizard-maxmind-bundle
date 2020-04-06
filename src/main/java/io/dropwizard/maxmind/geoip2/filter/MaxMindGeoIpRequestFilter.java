@@ -31,6 +31,7 @@ import com.maxmind.geoip2.record.*;
 import io.dropwizard.maxmind.geoip2.config.MaxMindConfig;
 import io.dropwizard.maxmind.geoip2.core.MaxMindHeaders;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.validator.routines.InetAddressValidator;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -91,7 +92,12 @@ public class MaxMindGeoIpRequestFilter implements ContainerRequestFilter {
             log.debug("Header: {} | Value: {}", config.getRemoteIpHeader(), clientAddress);
         //Multiple Client ip addresses are being sent in case of multiple people stamping the request
         final String[] addresses = clientAddress.split(",");
-        final String clientIp = addresses[0].split(":")[0];
+        InetAddressValidator inetAddressValidator = InetAddressValidator.getInstance();
+        if(inetAddressValidator.isValid(addresses[0])) {
+            log.warn("Invalid IP Address: {}", addresses[0]);
+            return;
+        }
+        final String clientIp = addresses[0];
         InetAddress address;
         if (!Strings.isNullOrEmpty(clientIp)) {
             try {
