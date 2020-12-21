@@ -1,0 +1,8 @@
+maxmind:
+  databaseFilePath: /path/to/maxmind/database/file.mmdb
+  remoteIpHeader: "CLIENT-IP" #default is X-FORWARDED-FOR (when used behind a loadbalancer)
+  cacheTTL: 120 #In seconds, Default is 300 seconds
+  cacheMaxEntries: 102400 #Default is 10240
+  enterprise: true #default: false. Enable maxmind enterprise database mode
+  type: anonymous #If it is not a enterprise database; set the type of database that is being used. Supported: country, city, anonymous
+  maxMindContext: false #If you need MaxMindInfo injection into resource methods; set it to true
