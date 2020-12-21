@@ -18,22 +18,12 @@ package io.dropwizard.maxmind.geoip2;
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.maxmind.geoip2.config.MaxMindConfig;
-import io.dropwizard.maxmind.geoip2.core.MaxMindInfo;
 import io.dropwizard.maxmind.geoip2.feature.MaxMindContextFeature;
 import io.dropwizard.maxmind.geoip2.filter.MaxMindGeoIpRequestFilter;
-import io.dropwizard.maxmind.geoip2.provider.MaxMindContext;
-import io.dropwizard.maxmind.geoip2.provider.MaxMindContextValueParamProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
-import org.glassfish.hk2.api.InjectionResolver;
-import org.glassfish.hk2.api.TypeLiteral;
 
-import org.glassfish.jersey.internal.inject.AbstractBinder;
-import org.glassfish.jersey.process.internal.RequestScoped;
-import org.glassfish.jersey.server.spi.internal.ValueParamProvider;
-
-import javax.inject.Singleton;
 
 /**
  * @author phaneesh
@@ -53,7 +43,6 @@ public abstract class MaxMindBundle<T extends Configuration> implements Configur
         MaxMindConfig maxMindConfig = getMaxMindConfig(configuration);
         environment.jersey().register(new MaxMindGeoIpRequestFilter(maxMindConfig));
         if(maxMindConfig.isMaxMindContext()) {
-            log.info("binding maxmind");
             environment.jersey().register(MaxMindContextFeature.class);
         }
     }

@@ -3,8 +3,6 @@ package io.dropwizard.maxmind.geoip2.feature;
 import io.dropwizard.maxmind.geoip2.provider.MaxMindContextValueParamProvider;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.server.spi.internal.ValueParamProvider;
-
-import javax.inject.Singleton;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 

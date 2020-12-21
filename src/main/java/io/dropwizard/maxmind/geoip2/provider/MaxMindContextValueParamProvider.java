@@ -21,17 +21,12 @@ import com.google.common.base.Strings;
 import io.dropwizard.maxmind.geoip2.core.MaxMindHeaders;
 import io.dropwizard.maxmind.geoip2.core.MaxMindInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.glassfish.hk2.api.*;
 import org.glassfish.jersey.server.ContainerRequest;
-import org.glassfish.jersey.server.internal.inject.MultivaluedParameterExtractorProvider;
 import org.glassfish.jersey.server.model.Parameter;
 import org.glassfish.jersey.server.spi.internal.ValueParamProvider;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.Provider;
 import java.util.Collection;
@@ -54,18 +49,12 @@ public class MaxMindContextValueParamProvider implements ValueParamProvider {
                 && parameter.isAnnotationPresent(MaxMindContext.class)) {
             return new MaxMindInfoParamProvider();
         }
-        log.info("class and annotation not compatible");
         return null;
     }
     public static final class MaxMindInfoParamProvider implements Function<ContainerRequest,MaxMindInfo> {
 
         @Override
         public MaxMindInfo apply(@Context ContainerRequest request) {
-            //final HttpServletRequest request = context.getResource(HttpServletRequest.class);
-            log.info("container request = {}",request);
-            if (request.equals(null)){
-                log.info("request is null");
-            }
             final String anonymousIp = getHeader(request,MaxMindHeaders.X_ANONYMOUS_IP);
             final String anonymousVpn = getHeader(request,MaxMindHeaders.X_ANONYMOUS_VPN);
             final String tor = getHeader(request,MaxMindHeaders.X_TOR);
