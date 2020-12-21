@@ -18,21 +18,27 @@ package io.dropwizard.maxmind.geoip2;
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.maxmind.geoip2.config.MaxMindConfig;
+import io.dropwizard.maxmind.geoip2.core.MaxMindInfo;
+import io.dropwizard.maxmind.geoip2.feature.MaxMindContextFeature;
 import io.dropwizard.maxmind.geoip2.filter.MaxMindGeoIpRequestFilter;
 import io.dropwizard.maxmind.geoip2.provider.MaxMindContext;
-import io.dropwizard.maxmind.geoip2.provider.MaxMindInfoProvider;
+import io.dropwizard.maxmind.geoip2.provider.MaxMindContextValueParamProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import lombok.extern.slf4j.Slf4j;
 import org.glassfish.hk2.api.InjectionResolver;
 import org.glassfish.hk2.api.TypeLiteral;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.server.spi.internal.ValueFactoryProvider;
+
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.process.internal.RequestScoped;
+import org.glassfish.jersey.server.spi.internal.ValueParamProvider;
 
 import javax.inject.Singleton;
 
 /**
  * @author phaneesh
  */
+@Slf4j
 public abstract class MaxMindBundle<T extends Configuration> implements ConfiguredBundle<T> {
 
     public abstract MaxMindConfig getMaxMindConfig(final T configuration);
@@ -47,14 +53,8 @@ public abstract class MaxMindBundle<T extends Configuration> implements Configur
         MaxMindConfig maxMindConfig = getMaxMindConfig(configuration);
         environment.jersey().register(new MaxMindGeoIpRequestFilter(maxMindConfig));
         if(maxMindConfig.isMaxMindContext()) {
-            environment.jersey().register(new AbstractBinder() {
-                @Override
-                protected void configure() {
-                    bind(MaxMindInfoProvider.class).to(ValueFactoryProvider.class).in(Singleton.class);
-                    bind(MaxMindInfoProvider.InjectResolver.class).to(
-                            new TypeLiteral<InjectionResolver<MaxMindContext>>() {}).in(Singleton.class);
-                }
-            });
+            log.info("binding maxmind");
+            environment.jersey().register(MaxMindContextFeature.class);
         }
     }
 }
