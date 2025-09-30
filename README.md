@@ -33,7 +33,7 @@ Use the following repository:
 Use the following maven dependency:
 ```xml
 <dependency>
-    <groupId>io.dropwizard</groupId>
+    <groupId>io.raven.dropwizard</groupId>
     <artifactId>dropwizard-maxmind</artifactId>
     <version>2.1.12-1</version>
 </dependency>
