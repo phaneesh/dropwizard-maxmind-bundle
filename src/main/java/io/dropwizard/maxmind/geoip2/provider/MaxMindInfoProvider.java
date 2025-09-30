@@ -21,91 +21,111 @@ import com.google.common.base.Strings;
 import io.dropwizard.maxmind.geoip2.core.MaxMindHeaders;
 import io.dropwizard.maxmind.geoip2.core.MaxMindInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.jersey.server.internal.inject.AbstractContainerRequestValueFactory;
-import org.glassfish.jersey.server.internal.inject.AbstractValueFactoryProvider;
+import org.glassfish.hk2.api.InjectionResolver;
+import org.glassfish.hk2.api.TypeLiteral;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.server.ContainerRequest;
+import org.glassfish.jersey.server.internal.inject.AbstractValueParamProvider;
 import org.glassfish.jersey.server.internal.inject.MultivaluedParameterExtractorProvider;
 import org.glassfish.jersey.server.internal.inject.ParamInjectionResolver;
 import org.glassfish.jersey.server.model.Parameter;
+import org.glassfish.jersey.server.spi.internal.ValueParamProvider;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.container.ResourceContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.ext.Provider;
+import java.util.function.Function;
 
 /**
  * @author phaneesh
  */
 @Slf4j
 @Singleton
-@Provider
-public class MaxMindInfoProvider extends AbstractValueFactoryProvider {
+public class MaxMindInfoProvider extends AbstractValueParamProvider {
 
+    public static final String UNKNOWN = "UNKNOWN";
 
-    public static final class InjectResolver extends ParamInjectionResolver<MaxMindContext> {
-
-        public InjectResolver() {
-            super(MaxMindInfoProvider.class);
+    /**
+     * Injection resolver for {@link MaxMindContext} annotation.
+     */
+    @Singleton
+    public static final class MaxMindContextInjectionResolver extends ParamInjectionResolver<MaxMindContext> {
+        @Inject
+        public MaxMindContextInjectionResolver(MaxMindInfoProvider valueParamProvider,
+                                               Provider<ContainerRequest> request) {
+            super(valueParamProvider, MaxMindContext.class, request);
         }
     }
 
-    private static final class MaxMinfInfoParamValueFactory extends AbstractContainerRequestValueFactory<MaxMindInfo> {
+    /**
+     * Factory that provides MaxMindInfo instances by extracting headers from the request.
+     */
+    private static MaxMindInfo createMaxMindInfo(ContainerRequest request) {
+        final String anonymousIp = request.getHeaderString(MaxMindHeaders.X_ANONYMOUS_IP);
+        final String anonymousVpn = request.getHeaderString(MaxMindHeaders.X_ANONYMOUS_VPN);
+        final String tor = request.getHeaderString(MaxMindHeaders.X_TOR);
+        final String city = request.getHeaderString(MaxMindHeaders.X_CITY);
+        final String state = request.getHeaderString(MaxMindHeaders.X_STATE);
+        final String stateIso = request.getHeaderString(MaxMindHeaders.X_STATE_ISO);
+        final String postal = request.getHeaderString(MaxMindHeaders.X_POSTAL);
+        final String connectionType = request.getHeaderString(MaxMindHeaders.X_CONNECTION_TYPE);
+        final String userType = request.getHeaderString(MaxMindHeaders.X_USER_TYPE);
+        final String country = request.getHeaderString(MaxMindHeaders.X_COUNTRY);
+        final String countryIso = request.getHeaderString(MaxMindHeaders.X_COUNTRY_ISO);
+        final String isp = request.getHeaderString(MaxMindHeaders.X_ISP);
+        final String latitude = request.getHeaderString(MaxMindHeaders.X_LATITUDE);
+        final String longitude = request.getHeaderString(MaxMindHeaders.X_LONGITUDE);
+        final String accuracy = request.getHeaderString(MaxMindHeaders.X_LOCATION_ACCURACY);
 
-        @Context
-        private ResourceContext context;
-
-        public MaxMindInfo provide() {
-            final HttpServletRequest request = context.getResource(HttpServletRequest.class);
-            final String anonymousIp = request.getHeader(MaxMindHeaders.X_ANONYMOUS_IP);
-            final String anonymousVpn = request.getHeader(MaxMindHeaders.X_ANONYMOUS_VPN);
-            final String tor = request.getHeader(MaxMindHeaders.X_TOR);
-            final String city = request.getHeader(MaxMindHeaders.X_CITY);
-            final String state = request.getHeader(MaxMindHeaders.X_STATE);
-            final String stateIso = request.getHeader(MaxMindHeaders.X_STATE_ISO);
-            final String postal = request.getHeader(MaxMindHeaders.X_POSTAL);
-            final String connectionType = request.getHeader(MaxMindHeaders.X_CONNECTION_TYPE);
-            final String userType = request.getHeader(MaxMindHeaders.X_USER_TYPE);
-            final String country = request.getHeader(MaxMindHeaders.X_COUNTRY);
-            final String countryIso = request.getHeader(MaxMindHeaders.X_COUNTRY_ISO);
-            final String isp = request.getHeader(MaxMindHeaders.X_ISP);
-            final String latitude = request.getHeader(MaxMindHeaders.X_LATITUDE);
-            final String longitude = request.getHeader(MaxMindHeaders.X_LONGITUDE);
-            final String accuracy = request.getHeader(MaxMindHeaders.X_LOCATION_ACCURACY);
-            return MaxMindInfo.builder()
-                    .anonymousIp(Strings.isNullOrEmpty(anonymousIp) ? false : Boolean.valueOf(anonymousIp))
-                    .anonymousVpn(Strings.isNullOrEmpty(anonymousVpn) ? false : Boolean.valueOf(anonymousVpn))
-                    .tor(Strings.isNullOrEmpty(tor) ? false : Boolean.valueOf(tor))
-                    .city(Strings.isNullOrEmpty(city) ? "UNKNOWN" : city)
-                    .state(Strings.isNullOrEmpty(state) ? "UNKNOWN" : state)
-                    .stateIso(Strings.isNullOrEmpty(state) ? "UNKNOWN" : stateIso)
-                    .country(Strings.isNullOrEmpty(country) ? "UNKNOWN" : country)
-                    .countryIso(Strings.isNullOrEmpty(country) ? "UNKNOWN" : countryIso)
-                    .postal(Strings.isNullOrEmpty(postal) ? "UNKNOWN" : postal)
-                    .connectionType(Strings.isNullOrEmpty(connectionType) ? "UNKNOWN" : connectionType)
-                    .userType(Strings.isNullOrEmpty(userType) ? "UNKNOWN" : userType)
-                    .isp(Strings.isNullOrEmpty(isp) ? "UNKNOWN" : isp)
-                    .latitude(Strings.isNullOrEmpty(latitude) ? 0 : Double.valueOf(latitude))
-                    .longitude(Strings.isNullOrEmpty(longitude) ? 0 : Double.valueOf(longitude))
-                    .accuracy(Strings.isNullOrEmpty(accuracy) ? 0 : Integer.valueOf(accuracy))
-                    .build();
-        }
+        return MaxMindInfo.builder()
+                .anonymousIp(!Strings.isNullOrEmpty(anonymousIp) && Boolean.parseBoolean(anonymousIp))
+                .anonymousVpn(!Strings.isNullOrEmpty(anonymousVpn) && Boolean.parseBoolean(anonymousVpn))
+                .tor(!Strings.isNullOrEmpty(tor) && Boolean.parseBoolean(tor))
+                .city(Strings.isNullOrEmpty(city) ? UNKNOWN : city)
+                .state(Strings.isNullOrEmpty(state) ? UNKNOWN : state)
+                .stateIso(Strings.isNullOrEmpty(stateIso) ? UNKNOWN : stateIso)
+                .country(Strings.isNullOrEmpty(country) ? UNKNOWN : country)
+                .countryIso(Strings.isNullOrEmpty(countryIso) ? UNKNOWN : countryIso)
+                .postal(Strings.isNullOrEmpty(postal) ? UNKNOWN : postal)
+                .connectionType(Strings.isNullOrEmpty(connectionType) ? UNKNOWN : connectionType)
+                .userType(Strings.isNullOrEmpty(userType) ? UNKNOWN : userType)
+                .isp(Strings.isNullOrEmpty(isp) ? UNKNOWN : isp)
+                .latitude(Strings.isNullOrEmpty(latitude) ? 0 : Double.parseDouble(latitude))
+                .longitude(Strings.isNullOrEmpty(longitude) ? 0 : Double.parseDouble(longitude))
+                .accuracy(Strings.isNullOrEmpty(accuracy) ? 0 : Integer.parseInt(accuracy))
+                .build();
     }
+
 
     @Inject
-    public MaxMindInfoProvider(MultivaluedParameterExtractorProvider extractorProvider, ServiceLocator locator) {
-        super(extractorProvider, locator, Parameter.Source.UNKNOWN);
+    public MaxMindInfoProvider(Provider<MultivaluedParameterExtractorProvider> mpep) {
+        super(mpep, org.glassfish.jersey.model.Parameter.Source.UNKNOWN);
     }
 
     @Override
-    protected AbstractContainerRequestValueFactory<?> createValueFactory(Parameter parameter) {
+    protected Function<ContainerRequest, ?> createValueProvider(Parameter parameter) {
         Class<?> classType = parameter.getRawType();
-
         if (classType == null || (!classType.equals(MaxMindInfo.class))) {
             log.warn("MaxMindContext annotation was not placed on correct object type; Injection might not work correctly!");
             return null;
         }
-        return new MaxMinfInfoParamValueFactory();
+        return MaxMindInfoProvider::createMaxMindInfo;
+    }
+
+
+    /**
+     * Binder for registering the MaxMindInfo provider and injection resolver.
+     * This should be registered in your application's Jersey configuration.
+     */
+    public static class Binder extends AbstractBinder {
+        @Override
+        protected void configure() {
+            bind(MaxMindInfoProvider.class)
+                    .to(ValueParamProvider.class)
+                    .in(Singleton.class);
+            bind(MaxMindContextInjectionResolver.class)
+                    .to(new TypeLiteral<InjectionResolver<MaxMindContext>>() {})
+                    .in(Singleton.class);
+        }
     }
 }
